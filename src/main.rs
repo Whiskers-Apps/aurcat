@@ -45,13 +45,16 @@ async fn main() {
             if index == 0 {
                 exit(0);
             } else if index <= repo_packages.len() {
-                pacman_install(&package);
+                pacman_install(&repo_packages.get(index - 1).unwrap().package);
             } else {
                 install_aur_package(&aur_packages.get(repo_packages.len() + index - 1).unwrap())
                     .await;
             }
         }
-        cli::Commands::Uninstall { package } => pacman_uninstall(&package),
+        cli::Commands::Uninstall { package } => {
+            // Para desinstalar aur `sudo pacman -Rns package --noconfirm`
+            pacman_uninstall(&package)
+        }
         cli::Commands::Clean {
             pacman_cache,
             pacman_lock_file,

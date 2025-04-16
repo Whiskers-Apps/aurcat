@@ -11,11 +11,11 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub struct RepositoryPackage {
-    repository: String,
-    package: String,
-    version: String,
-    description: String,
-    installed: bool,
+    pub repository: String,
+    pub package: String,
+    pub version: String,
+    pub description: String,
+    pub installed: bool,
 }
 
 #[derive(Debug, Clone)]
