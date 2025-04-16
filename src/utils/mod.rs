@@ -1,11 +1,10 @@
 use std::{
-    env::args,
     ffi::OsStr,
     process::{Command, ExitStatus, Output},
 };
 
-use clap::Arg;
 use colored::Colorize;
+use inquire::{CustomType, validator::Validation};
 
 pub fn show_status_message(status: ExitStatus, success: &str, failure: &str) {
     let message = match status.success() {
@@ -42,4 +41,28 @@ where
         .expect("Error waiting for command");
 
     show_status_message(status, success, failure);
+}
+
+pub fn get_seperator() -> String {
+    let mut seperator = String::new();
+    for _ in 0..(term_size::dimensions().unwrap_or((100, 100)).0) {
+        seperator += "-";
+    }
+    return seperator;
+}
+
+pub fn get_index(message: &str, package_count: usize) -> usize {
+    let number = CustomType::<usize>::new(&message)
+        .with_validator(move |input: &usize| {
+            if *input <= package_count {
+                Ok(Validation::Valid)
+            } else {
+                Ok(Validation::Invalid(
+                    "Invalid Index".to_string().clone().into(),
+                ))
+            }
+        })
+        .prompt();
+
+    return number.unwrap_or(0);
 }
