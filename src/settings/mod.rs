@@ -1,15 +1,23 @@
 use std::{fs, path::PathBuf};
 
-use prettytable::{Table, row};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
-    #[serde(default = "get_true")]
-    pub confirm_install: bool,
+    #[serde(default = "get_false")]
+    pub skip_install_confirm: bool,
 
-    #[serde(default = "get_true")]
-    pub confirm_uninstall: bool,
+    #[serde(default = "get_false")]
+    pub skip_uninstall_confirm: bool,
+
+    #[serde(default = "get_false")]
+    pub skip_search_prompt: bool,
+
+    #[serde(default = "default_max_search_results")]
+    pub max_search_results: usize,
+
+    #[serde(default = "get_false")]
+    pub skip_aur_update: bool,
 }
 
 pub fn get_settings_path() -> PathBuf {
@@ -22,8 +30,12 @@ pub fn get_settings_path() -> PathBuf {
 // ==== Settings Values
 // ===============================================
 
-fn get_true() -> bool {
-    true
+fn get_false() -> bool {
+    false
+}
+
+fn default_max_search_results() -> usize {
+    30
 }
 
 // ===============================================
@@ -32,8 +44,11 @@ fn get_true() -> bool {
 
 fn get_default_settings() -> Settings {
     Settings {
-        confirm_install: get_true(),
-        confirm_uninstall: get_true(),
+        skip_install_confirm: false,
+        skip_uninstall_confirm: false,
+        skip_search_prompt: false,
+        max_search_results: default_max_search_results(),
+        skip_aur_update: false,
     }
 }
 
@@ -48,36 +63,4 @@ pub fn get_settings() -> Settings {
     }
 
     get_default_settings()
-}
-
-impl Settings {
-    pub fn show_settings(&self) {
-        let mut table = Table::new();
-
-        table.add_row(row![
-            "Setting",
-            "TOML",
-            "Description",
-            "Current",
-            "Possible Values"
-        ]);
-
-        table.add_row(row![
-            "Confirm Install",
-            "confirm_install",
-            "Require confirmation before installing a package",
-            format!("{}", self.confirm_install),
-            "true|false"
-        ]);
-
-        table.add_row(row![
-            "Confirm Uninstall",
-            "confirm_uninstall",
-            "Require confirmation before uninstalling a package",
-            format!("{}", self.confirm_uninstall),
-            "true|false"
-        ]);
-
-        table.printstd();
-    }
 }

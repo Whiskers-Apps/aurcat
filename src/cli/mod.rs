@@ -11,30 +11,66 @@ pub enum Commands {
     #[command(visible_alias = "i", about = "Install a pacman/aur package")]
     Install {
         package: String,
+
         #[arg(
-            short = 'a',
-            long = "aur",
-            help = "Install the package from AUR instead of the repositories",
-            default_value = "false"
+            short = 's',
+            long = "skip",
+            help = "Skip confirmation while installing",
+            default_missing_value = "true",
+            num_args = 0..=1
         )]
-        aur: bool,
+        skip_confirm: Option<bool>,
     },
 
-    #[command(visible_alias = "s", about = "Search for a package")]
-    Search { package: String },
+    #[command(
+        visible_alias = "s",
+        about = "Search for a package and type the number to uninstall it"
+    )]
+    Search {
+        query: String,
+
+        #[arg(
+            short = 'p',
+            long = "prompt",
+            help = "Skip the installation prompt",
+            default_missing_value = "true",
+            num_args = 0..=1
+        )]
+        skip_prompt: Option<bool>,
+
+        #[arg(
+            short = 'm',
+            long = "max",
+            help = "The max amount of results to display",
+            num_args = 0..=1
+        )]
+        max_results: Option<usize>,
+    },
 
     #[command(visible_alias = "un", about = "Uninstall a pacman/aur package")]
-    Uninstall { package: String },
+    Uninstall {
+        #[arg(value_name = "PACKAGE")]
+        package: String,
+
+        #[arg(
+            short = 's',
+            long = "skip",
+            help = "Skip confirmation while uninstalling",
+            default_missing_value = "true",
+            num_args = 0..=1
+        )]
+        skip_confirm: Option<bool>,
+    },
 
     #[command(visible_alias = "c", about = "Clean lock file or cache")]
     Clean {
         #[arg(
             short = 'c',
             long = "cache",
-            help = "Clear pacman cache",
-            default_value = "false"
+            help = "Clear pacman cache for X versions",
+            value_name = "VERSIONS COUNT"
         )]
-        pacman_cache: bool,
+        pacman_cache: Option<usize>,
         #[arg(
             short = 'l',
             long = "lock-file",
@@ -44,17 +80,14 @@ pub enum Commands {
         pacman_lock_file: bool,
     },
 
-    #[command(about = "Show possible settings and their current value")]
-    Settings {},
-
     #[command(visible_alias = "up", about = "Update your packages and mirrors")]
     Update {
         #[arg(
             short = 'a',
             long = "aur",
-            help = "Update AUR packages",
-            default_value = "false"
+            help = "Skip AUR updates",
+            default_missing_value = "true"
         )]
-        aur: bool,
+        skip_aur: Option<bool>,
     },
 }

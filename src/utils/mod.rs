@@ -51,7 +51,7 @@ pub fn get_seperator() -> String {
     return seperator;
 }
 
-pub fn get_index(message: &str, package_count: usize) -> usize {
+pub fn get_number_in_range(message: &str, package_count: usize) -> usize {
     let number = CustomType::<usize>::new(&message)
         .with_validator(move |input: &usize| {
             if *input <= package_count {
@@ -65,4 +65,12 @@ pub fn get_index(message: &str, package_count: usize) -> usize {
         .prompt();
 
     return number.unwrap_or(0);
+}
+
+pub fn show_success_message(message: &str) {
+    println!("{}", message.green());
+}
+
+pub fn show_error_message(message: &str) {
+    println!("{}", message.red());
 }
