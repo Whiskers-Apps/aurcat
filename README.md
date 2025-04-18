@@ -5,6 +5,8 @@ It can't replace yay/paru (for now) so have the app as your sidekick.
 
 Feel free to suggest some features in the issues page (if they are not already in TODO list).
 
+And tbh it's just a way for me to learn more about how pacman and aur works XD
+
 # TODO
 - [ ] Check AUR build dependencies
 - [ ] List Packages
