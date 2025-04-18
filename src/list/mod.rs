@@ -39,7 +39,9 @@ pub fn get_installed_packages() -> Result<Vec<InstalledPackage>, Box<dyn Error>>
     return Err("Error getting packages".into());
 }
 
-pub fn get_installed_aur_packages() -> Result<Vec<InstalledPackage>, Box<dyn Error>> {
+pub fn get_installed_aur_packages(
+    filter_debug: bool,
+) -> Result<Vec<InstalledPackage>, Box<dyn Error>> {
     let command = Command::new("pacman").arg("-Qm").output()?;
 
     if command.status.success() {
@@ -59,10 +61,14 @@ pub fn get_installed_aur_packages() -> Result<Vec<InstalledPackage>, Box<dyn Err
                 .collect::<Vec<String>>();
 
             if split.len() == 2 {
-                packages.push(InstalledPackage {
-                    package: split.get(0).unwrap().to_lowercase().to_owned(),
-                    version: split.get(1).unwrap().to_owned(),
-                });
+                let package = split.get(0).unwrap().to_lowercase().to_owned();
+                let version = split.get(1).unwrap().to_owned();
+
+                if filter_debug && package.ends_with("-debug") {
+                    continue;
+                }
+
+                packages.push(InstalledPackage { package, version });
             }
         }
 

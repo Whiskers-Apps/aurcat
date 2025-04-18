@@ -42,6 +42,6 @@ async fn main() {
             pacman_lock_file,
         } => on_clean(pacman_cache, pacman_lock_file),
 
-        cli::Commands::Update { skip_aur } => on_update(skip_aur),
+        cli::Commands::Update { skip_aur } => on_update(skip_aur).await,
     }
 }

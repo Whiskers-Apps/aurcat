@@ -12,7 +12,7 @@ use crate::{
 /// Handles the uninstall command from CLI
 pub fn on_uninstall_package(package: &str, confirm: Option<bool>) {
     let installed_packages = get_installed_packages().unwrap_or(vec![]);
-    let installed_aur_packages = get_installed_aur_packages().unwrap_or(vec![]);
+    let installed_aur_packages = get_installed_aur_packages(false).unwrap_or(vec![]);
 
     if installed_aur_packages.iter().any(|p| p.package == package) {
         if uninstall_aur_package(package, confirm).is_ok() {
@@ -60,7 +60,7 @@ pub fn uninstall_package(package: &str, confirm: Option<bool>) -> Result<(), Box
 /// Uninstall a package that was previously installed using the AUR
 pub fn uninstall_aur_package(package: &str, confirm: Option<bool>) -> Result<(), Box<dyn Error>> {
     let debug_package = format!("{package}-debug");
-    let debug_package_exists = get_installed_aur_packages()
+    let debug_package_exists = get_installed_aur_packages(false)
         .unwrap_or(vec![])
         .iter()
         .any(|p| p.package == debug_package);

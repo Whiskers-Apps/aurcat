@@ -264,7 +264,7 @@ pub async fn get_aur_package_search(query: &str) -> Result<Vec<AurPackage>, Box<
     let response = client.get(&url).send().await?;
     let parsed_response: AurSearchResponse = response.json().await?;
 
-    let installed_packages = get_installed_aur_packages()?;
+    let installed_packages = get_installed_aur_packages(true)?;
 
     let packages = parsed_response
         .results
