@@ -16,5 +16,8 @@ And tbh it's just a way for me to learn more about how pacman and aur works XD
 - [ ] Review AUR package
 - [ ] Refresh Mirrors
 
-
-
+# Install
+To install the app run:
+```sh
+cargo install aurcat
+```

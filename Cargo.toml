@@ -5,7 +5,6 @@ license = "MIT"
 authors = ["Whiskers-Apps"]
 repository = "https://github.com/Whiskers-Apps/aurcat"
 keywords = ["AUR", "Pacman" , "Arch", "Linux"]
-categories = ["cli"]
 version = "0.0.1"
 edition = "2024"
 
