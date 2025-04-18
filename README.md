@@ -1,2 +1,5 @@
-# aurcat
-Just another pacman/aur helper but with reasonable defaults and readable commands
+# TODO
+- [] Check AUR dependencies ands ask to install
+- [] List Packages
+- [] One sudo for everything
+- [] Multiple package installation

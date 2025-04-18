@@ -91,7 +91,7 @@ async fn update_aur_packages() -> Result<(), Box<dyn Error>> {
             .find(|p| p.package == result.name)
             .unwrap();
 
-        if &package.version != &result.version {
+        if &package.version == &result.version {
             packages_to_update.push(AurPackage {
                 installed: true,
                 package: package.package.to_owned(),
