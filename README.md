@@ -1,5 +1,19 @@
+# About AUR😺
+This tool is a WIP and is a more user friendly way to manage packages and have other features around pacman like cleaning cache.
+
+It can't replace yay/paru (for now) so have the app as your sidekick.
+
+Feel free to suggest some features in the issues page (if they are not already in TODO list).
+
 # TODO
-- [ ] Check AUR dependencies ands ask to install
+- [ ] Check AUR build dependencies
 - [ ] List Packages
-- [ ] One sudo for everything
+- [ ] Run multiple commands with sudo
 - [ ] Multiple package installation
+- [ ] Interactive Mode
+- [ ] Review AUR package
+- [ ] Refresh Mirrors
+- [ ] Refresh Packages
+
+
+
