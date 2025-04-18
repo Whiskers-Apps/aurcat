@@ -13,7 +13,6 @@ Feel free to suggest some features in the issues page (if they are not already i
 - [ ] Interactive Mode
 - [ ] Review AUR package
 - [ ] Refresh Mirrors
-- [ ] Refresh Packages
 
 
 
