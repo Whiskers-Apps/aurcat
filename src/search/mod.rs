@@ -34,7 +34,6 @@ pub struct AurPackage {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AurSearchResponse {
-    resultcount: usize,
     results: Vec<AurResult>,
 }
 

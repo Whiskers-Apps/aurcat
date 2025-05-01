@@ -1,10 +1,13 @@
 use std::{
     ffi::OsStr,
-    process::{Command, ExitStatus, Output},
+    process::{Command, ExitStatus, Output, Stdio},
 };
 
 use colored::Colorize;
-use inquire::{CustomType, validator::Validation};
+use inquire::{
+    CustomType, Text,
+    validator::{StringValidator, Validation},
+};
 
 pub fn show_status_message(status: ExitStatus, success: &str, failure: &str) {
     let message = match status.success() {
@@ -35,6 +38,9 @@ where
 {
     let status = Command::new("sudo")
         .args(command)
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .spawn()
         .expect("Error runnig command")
         .wait()

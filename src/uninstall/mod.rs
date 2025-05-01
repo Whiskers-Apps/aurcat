@@ -1,6 +1,6 @@
 use std::{
     error::Error,
-    process::{Command, exit},
+    process::{Command, Stdio, exit},
 };
 
 use crate::{
@@ -48,7 +48,13 @@ pub fn uninstall_package(package: &str, confirm: Option<bool>) -> Result<(), Box
         vec!["pacman", "-R", package]
     };
 
-    let command = Command::new("sudo").args(args).spawn()?.wait()?;
+    let command = Command::new("sudo")
+        .args(args)
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn()?
+        .wait()?;
 
     return if command.success() {
         Ok(())
@@ -81,7 +87,13 @@ pub fn uninstall_aur_package(package: &str, confirm: Option<bool>) -> Result<(),
         args.push("--noconfirm");
     }
 
-    let command = Command::new("sudo").args(args).spawn()?.wait()?;
+    let command = Command::new("sudo")
+        .args(args)
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn()?
+        .wait()?;
 
     return if command.success() {
         Ok(())

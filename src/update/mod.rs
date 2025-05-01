@@ -1,4 +1,7 @@
-use std::{error::Error, process::Command};
+use std::{
+    error::Error,
+    process::{Command, Stdio},
+};
 
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -57,7 +60,13 @@ fn update_packages() -> Result<(), Box<dyn Error>> {
         vec!["pacman", "-Syyu"]
     };
 
-    let command = Command::new("sudo").args(args).spawn()?.wait()?;
+    let command = Command::new("sudo")
+        .args(args)
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn()?
+        .wait()?;
 
     return if command.success() {
         Ok(())
@@ -91,7 +100,7 @@ async fn update_aur_packages() -> Result<(), Box<dyn Error>> {
             .find(|p| p.package == result.name)
             .unwrap();
 
-        if &package.version == &result.version {
+        if &package.version != &result.version {
             packages_to_update.push(AurPackage {
                 installed: true,
                 package: package.package.to_owned(),

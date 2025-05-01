@@ -10,7 +10,7 @@ pub struct Cli {
 pub enum Commands {
     #[command(visible_alias = "i", about = "Install a pacman/aur package")]
     Install {
-        package: String,
+        packages: Vec<String>,
 
         #[arg(
             short = 's',

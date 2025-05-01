@@ -11,7 +11,7 @@ And tbh it's just a way for me to learn more about how pacman and aur works XD
 - [ ] Check AUR build dependencies
 - [ ] List Packages
 - [ ] Run multiple commands with sudo
-- [ ] Multiple package installation
+- [x] Multiple package installation
 - [ ] Interactive Mode
 - [ ] Review AUR package
 - [ ] Refresh Mirrors

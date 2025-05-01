@@ -22,9 +22,9 @@ pub mod utils;
 async fn main() {
     match Cli::parse().command {
         cli::Commands::Install {
-            package,
+            packages,
             skip_confirm,
-        } => on_install(&package.to_lowercase(), skip_confirm).await,
+        } => on_install(&packages, skip_confirm).await,
 
         cli::Commands::Search {
             query,

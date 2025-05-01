@@ -1,4 +1,7 @@
-use std::{error::Error, process::Command};
+use std::{
+    error::Error,
+    process::{Command, Stdio},
+};
 
 use crate::utils::{show_error_message, show_success_message};
 
@@ -35,6 +38,9 @@ pub fn on_clean(clean_cache: Option<usize>, remove_lock: bool) {
 fn clean_pacman_cache(cache_versions: usize) -> Result<(), Box<dyn Error>> {
     let command = Command::new("sudo")
         .args(["paccache", &format!("-rk{cache_versions}")])
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .spawn()?
         .wait()?;
 
@@ -49,6 +55,9 @@ fn clean_pacman_cache(cache_versions: usize) -> Result<(), Box<dyn Error>> {
 fn remove_lock_file() -> Result<(), Box<dyn Error>> {
     let command = Command::new("sudo")
         .args(["rm", "-f", "/var/lib/pacman/db.lock"])
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .spawn()?
         .wait()?;
 
