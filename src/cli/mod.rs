@@ -50,7 +50,7 @@ pub enum Commands {
     #[command(visible_alias = "un", about = "Uninstall a pacman/aur package")]
     Uninstall {
         #[arg(value_name = "PACKAGE")]
-        package: String,
+        packages: Vec<String>,
 
         #[arg(
             short = 's',
@@ -86,8 +86,19 @@ pub enum Commands {
             short = 'a',
             long = "aur",
             help = "Skip AUR updates",
-            default_missing_value = "true"
+            default_missing_value = "true",
+            num_args = 0..=1,
         )]
         skip_aur: Option<bool>,
+    },
+
+    #[command(visible_alias = "l", about = "List installed packages on your system")]
+    List {
+        #[arg(
+            short = 'f',
+            long = "filter",
+            help = "Filter the list by a package name"
+        )]
+        filter: Option<String>,
     },
 }

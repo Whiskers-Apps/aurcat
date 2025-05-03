@@ -12,10 +12,12 @@ edition = "2024"
 clap = { version = "4.5.36", features = ["derive"] }
 colored = "3.0.0"
 dirs = "6.0.0"
+indicatif = "0.17.11"
 inquire = "0.7.5"
 reqwest = { version = "0.12.15", features = ["json"] }
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
+sniffer-rs = "1.1.2"
 term_size = "0.3.2"
 tokio = { version = "1.44.2", features = ["full"] }
 toml = "0.8.20"

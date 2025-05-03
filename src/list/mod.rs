@@ -1,9 +1,52 @@
 use std::{error::Error, process::Command};
 
-#[derive(Debug, Clone)]
+use colored::Colorize;
+use sniffer_rs::sniffer::Sniffer;
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct InstalledPackage {
     pub package: String,
     pub version: String,
+}
+
+pub fn on_list(filter: Option<String>) {
+    let installed_pkgs = if let Some(filter) = &filter {
+        let sniffer = Sniffer::new()
+            .set_do_jaro_winkler_match(false)
+            .set_do_hamming_match(false)
+            .set_do_levenshtein_match(false);
+
+        get_installed_packages()
+            .unwrap_or(vec![])
+            .into_iter()
+            .filter(|p| sniffer.matches(&p.package, filter))
+            .collect::<Vec<InstalledPackage>>()
+    } else {
+        get_installed_packages().unwrap_or(vec![])
+    };
+
+    let aur_pkgs = if let Some(filter) = &filter {
+        let sniffer = Sniffer::new()
+            .set_do_jaro_winkler_match(false)
+            .set_do_hamming_match(false)
+            .set_do_levenshtein_match(false);
+
+        get_installed_aur_packages(true)
+            .unwrap_or(vec![])
+            .into_iter()
+            .filter(|p| sniffer.matches(&p.package, filter))
+            .collect::<Vec<InstalledPackage>>()
+    } else {
+        get_installed_aur_packages(true).unwrap_or(vec![])
+    };
+
+    for pkg in installed_pkgs {
+        println!("📦 {} {}", pkg.package.bold(), pkg.version);
+    }
+
+    for pkg in aur_pkgs {
+        println!("🌍 {} {}", pkg.package.bold(), pkg.version);
+    }
 }
 
 pub fn get_installed_packages() -> Result<Vec<InstalledPackage>, Box<dyn Error>> {
@@ -33,7 +76,14 @@ pub fn get_installed_packages() -> Result<Vec<InstalledPackage>, Box<dyn Error>>
             }
         }
 
-        return Ok(packages);
+        let aur_pkgs = get_installed_aur_packages(false)?;
+
+        let filtered_pkgs = packages
+            .into_iter()
+            .filter(|p| !aur_pkgs.contains(p))
+            .collect::<Vec<InstalledPackage>>();
+
+        return Ok(filtered_pkgs);
     }
 
     return Err("Error getting packages".into());

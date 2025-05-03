@@ -2,6 +2,7 @@ use clap::Parser;
 use clean::on_clean;
 use cli::Cli;
 use install::on_install;
+use list::on_list;
 use search::on_search;
 use uninstall::on_uninstall_package;
 use update::on_update;
@@ -25,23 +26,20 @@ async fn main() {
             packages,
             skip_confirm,
         } => on_install(&packages, skip_confirm).await,
-
         cli::Commands::Search {
             query,
             skip_prompt,
             max_results,
         } => on_search(&query, skip_prompt, max_results).await,
-
         cli::Commands::Uninstall {
-            package,
+            packages,
             skip_confirm,
-        } => on_uninstall_package(&package.to_lowercase(), skip_confirm),
-
+        } => on_uninstall_package(&packages, skip_confirm),
         cli::Commands::Clean {
             pacman_cache,
             pacman_lock_file,
         } => on_clean(pacman_cache, pacman_lock_file),
-
         cli::Commands::Update { skip_aur } => on_update(skip_aur).await,
+        cli::Commands::List { filter } => on_list(filter),
     }
 }

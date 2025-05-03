@@ -8,12 +8,13 @@ Feel free to suggest some features in the issues page (if they are not already i
 And tbh it's just a way for me to learn more about how pacman and aur works XD
 
 # TODO
-- [ ] Check AUR build dependencies
-- [ ] List Packages
-- [ ] Run multiple commands with sudo
+- [x] Check AUR build dependencies
+- [x] List Packages
+- [x] Run multiple commands with sudo
 - [x] Multiple package installation
 - [ ] Interactive Mode
 - [ ] Review AUR package
+- [ ] Handle AUR Dependencies
 - [ ] Refresh Mirrors
 
 # Install

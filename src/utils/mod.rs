@@ -1,13 +1,12 @@
 use std::{
     ffi::OsStr,
     process::{Command, ExitStatus, Output, Stdio},
+    time::Duration,
 };
 
 use colored::Colorize;
-use inquire::{
-    CustomType, Text,
-    validator::{StringValidator, Validation},
-};
+use indicatif::{ProgressBar, ProgressStyle};
+use inquire::{CustomType, validator::Validation};
 
 pub fn show_status_message(status: ExitStatus, success: &str, failure: &str) {
     let message = match status.success() {
@@ -79,4 +78,18 @@ pub fn show_success_message(message: &str) {
 
 pub fn show_error_message(message: &str) {
     println!("{}", message.red());
+}
+
+pub fn get_spinner(message: &str) -> ProgressBar {
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(
+        ProgressStyle::default_spinner()
+            .tick_chars("|/-\\ ")
+            .template("{spinner}{msg}")
+            .unwrap(),
+    );
+    spinner.set_message(message.to_owned());
+    spinner.enable_steady_tick(Duration::from_millis(200));
+
+    spinner
 }

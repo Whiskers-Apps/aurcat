@@ -1,5 +1,6 @@
 use std::{
     error::Error,
+    fs::{self, create_dir_all},
     process::{Command, Stdio},
 };
 
@@ -10,10 +11,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     list::{get_installed_aur_packages, get_installed_packages},
+    paths::{get_cache_dir, get_package_cache_dir},
     search::{AurPackage, get_aur_package_search, get_package_search},
     settings::get_settings,
-    uninstall::uninstall_package,
-    utils::{show_error_message, show_success_message},
+    uninstall::{uninstall_aur_package, uninstall_package},
+    utils::{get_spinner, show_error_message, show_success_message},
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -39,34 +41,32 @@ pub fn get_empty_vec() -> Vec<String> {
 
 pub async fn on_install(packages: &Vec<String>, confirm: Option<bool>) {
     for package in packages {
+        let spinner = get_spinner("Searching Package");
+
         let package_search = get_package_search(package).unwrap_or(vec![]);
         let aur_package_search = get_aur_package_search(package).await.unwrap_or(vec![]);
 
         let official_package = package_search.iter().find(|p| &p.package == package);
         let aur_package = aur_package_search.iter().find(|p| &p.package == package);
 
-        if official_package.is_some() {
-            show_success_message("🔍 Found official package");
+        spinner.finish_and_clear();
 
+        if official_package.is_some() {
             if install_package(package, confirm).is_ok() {
                 show_success_message("📦 The package was successfully installed");
             } else {
-                show_error_message("😮 Package fought back and couldn't be installed");
+                show_error_message("The package couldn't be installed");
             }
         } else if aur_package.is_some() {
             let aur_package = aur_package.unwrap();
 
-            show_success_message("🔍 Found AUR package");
-
             if install_aur_package(&aur_package, confirm).await.is_ok() {
                 show_success_message("📦 The package was successfully installed");
             } else {
-                show_error_message("😮 Package fought back and couldn't be installed");
+                show_error_message("The package could't be installed");
             };
         } else {
-            show_error_message(
-                "🐇 The package went missing. Check if you typed the right package name.",
-            );
+            show_error_message("Couldn't find the package");
         }
     }
 }
@@ -134,31 +134,21 @@ pub async fn install_aur_package(
         .collect::<String>()
         .bold();
 
-    let conflicts = result
-        .conflicts
-        .iter()
-        .map(|p| format!("{} ", p))
-        .collect::<String>()
-        .bold()
-        .red();
+    let local_packages = get_installed_packages().unwrap_or(vec![]);
+    let aur_packages = get_installed_aur_packages(false).unwrap_or(vec![]);
 
     if !result.conflicts.is_empty() {
-        let local_pacakges = get_installed_packages().unwrap_or(vec![]);
-        let aur_packages = get_installed_aur_packages(false).unwrap_or(vec![]);
-
         for conflict in result.conflicts {
-            if local_pacakges.iter().any(|lp| lp.package == conflict)
-                || conflict == "firefox-nightly"
-            {
+            if local_packages.iter().any(|lp| lp.package == conflict) {
                 println!(
                     "The package {} conflicts with {}",
                     package.package.bold(),
-                    conflict.red().bold()
+                    conflict.clone().red().bold()
                 );
 
                 let uninstall =
                     Confirm::new(&format!("Would you like to uninstall {}", conflict.bold()))
-                        .with_default(true)
+                        .with_default(false)
                         .prompt()?;
 
                 if uninstall {
@@ -166,88 +156,133 @@ pub async fn install_aur_package(
                         return Err("Error uninstalling conflicting package".into());
                     };
                 } else {
-                    return Err("Error because of conflict".into());
+                    return Err("Conflict happened".into());
                 }
             }
 
-            if aur_packages.iter().any(|ap| ap.package == conflict) || conflict == "firefox-nightly"
-            {
+            if aur_packages.iter().any(|ap| ap.package == conflict) {
                 println!(
                     "The package {} conflicts with {}",
                     package.package.blue().bold(),
                     conflict.red().bold()
-                )
+                );
+
+                let uninstall =
+                    Confirm::new(&format!("Would you like to uninstall {}", conflict.bold()))
+                        .with_default(false)
+                        .prompt()?;
+
+                if uninstall {
+                    if uninstall_aur_package(&conflict, confirm).is_err() {
+                        return Err("Error uninstalling conflicting package".into());
+                    };
+                } else {
+                    return Err("Conflict happened".into());
+                }
             }
         }
     }
 
-    println!("Make Dependencies: {make_depends}");
-    println!("Dependencies: {depends}");
+    if !make_depends.is_empty() {
+        let local_package_names = local_packages
+            .clone()
+            .into_iter()
+            .map(|p| p.package)
+            .collect::<Vec<String>>();
 
-    return Ok(());
+        let missing_deps = result
+            .make_depends
+            .clone()
+            .into_iter()
+            .filter(|p| local_package_names.contains(p))
+            .collect::<Vec<String>>();
 
-    // let url = format!("https://aur.archlinux.org{}", package.url_path);
+        for pkg in missing_deps {
+            install_package(&pkg, confirm)?;
+        }
+    }
 
-    // let cache_dir = get_cache_dir();
+    if !depends.is_empty() {
+        let local_package_names = local_packages
+            .clone()
+            .into_iter()
+            .map(|p| p.package)
+            .collect::<Vec<String>>();
 
-    // if !cache_dir.exists() {
-    //     create&_dir_all(&cache_dir)?;
-    // }
+        let missing_deps = result
+            .make_depends
+            .clone()
+            .into_iter()
+            .filter(|p| local_package_names.contains(p))
+            .collect::<Vec<String>>();
 
-    // let package_dir = get_package_cache_dir(&package.package);
+        for pkg in missing_deps {
+            install_package(&pkg, confirm)?;
+        }
+    }
 
-    // if !package_dir.exists() {
-    //     create_dir_all(&package_dir)?;
-    // }
+    let url = format!("https://aur.archlinux.org{}", package.url_path);
 
-    // let version_dir = package_dir.join(&package.version);
+    let cache_dir = get_cache_dir();
 
-    // if !version_dir.exists() {
-    //     create_dir_all(&version_dir)?;
-    // }
+    if !cache_dir.exists() {
+        create_dir_all(&cache_dir)?;
+    }
 
-    // let package_path = version_dir.join(format!("{}.tar.gz", &package.version));
+    let package_dir = get_package_cache_dir(&package.package);
 
-    // let client = Client::new();
-    // let response = client.get(&url).send().await?;
+    if !package_dir.exists() {
+        create_dir_all(&package_dir)?;
+    }
 
-    // let bytes = response.bytes().await?;
-    // fs::write(&package_path, &bytes)?;
+    let version_dir = package_dir.join(&package.version);
 
-    // let command = Command::new("tar")
-    //     .args([
-    //         "-xzf",
-    //         &package_path.into_os_string().into_string().unwrap(),
-    //         "--strip-components=1",
-    //     ])
-    //     .current_dir(&version_dir)
-    //     .output()?;
+    if !version_dir.exists() {
+        create_dir_all(&version_dir)?;
+    }
 
-    // if !command.status.success() {
-    //     return Err("Couldn't untar the xz file".into());
-    // }
+    let package_path = version_dir.join(format!("{}.tar.gz", &package.version));
 
-    // let skip_confirm = if let Some(confirm) = confirm {
-    //     confirm
-    // } else {
-    //     get_settings().skip_install_confirm
-    // };
+    let client = Client::new();
+    let response = client.get(&url).send().await?;
 
-    // let args = if skip_confirm {
-    //     vec!["-si", "--noconfirm", "--needed", "--syncdeps"]
-    // } else {
-    //     vec!["-si", "--needed", "--syncdeps"]
-    // };
+    let bytes = response.bytes().await?;
+    fs::write(&package_path, &bytes)?;
 
-    // let command = Command::new("makepkg")
-    //     .args(args)
-    //     .current_dir(&version_dir)
-    //     .spawn()?
-    //     .wait()?;
+    let command = Command::new("tar")
+        .args([
+            "-xzf",
+            &package_path.into_os_string().into_string().unwrap(),
+            "--strip-components=1",
+        ])
+        .current_dir(&version_dir)
+        .output()?;
 
-    // return if command.success() {
-    //     Ok(())
-    // } else {
-    //     Err("Couldn't uninstall package".into())
-    // };
+    if !command.status.success() {
+        return Err("Couldn't untar the xz file".into());
+    }
+
+    let skip_confirm = if let Some(confirm) = confirm {
+        confirm
+    } else {
+        get_settings().skip_install_confirm
+    };
+
+    let args = if skip_confirm {
+        vec!["-si", "--noconfirm", "--needed", "--syncdeps"]
+    } else {
+        vec!["-si", "--needed", "--syncdeps"]
+    };
+
+    let command = Command::new("makepkg")
+        .args(args)
+        .current_dir(&version_dir)
+        .spawn()?
+        .wait()?;
+
+    return if command.success() {
+        Ok(())
+    } else {
+        Err("Couldn't uninstall package".into())
+    };
 }
