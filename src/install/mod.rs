@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     list::{get_installed_aur_packages, get_installed_packages},
     paths::{get_cache_dir, get_package_cache_dir},
-    search::{AurPackage, get_aur_package_search, get_package_search},
+    search::{AurPackage, get_aur_package_search, get_package_search, on_search},
     settings::get_settings,
     uninstall::{uninstall_aur_package, uninstall_package},
     utils::{get_spinner, show_error_message, show_success_message},
@@ -66,7 +66,11 @@ pub async fn on_install(packages: &Vec<String>, confirm: Option<bool>) {
                 show_error_message("The package could't be installed");
             };
         } else {
-            show_error_message("Couldn't find the package");
+            if get_settings().install_search_fallback && packages.len() == 1 {
+                on_search(&packages.get(0).unwrap(), None, None).await;
+            } else {
+                show_error_message("Couldn't find the package");
+            }
         }
     }
 }

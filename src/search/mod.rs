@@ -138,9 +138,10 @@ pub async fn on_search(query: &str, skip: Option<bool>, max: Option<usize>) {
         package.display(if skip_prompt { None } else { Some(index + 1) });
     }
 
-    println!(
-        "{}",
-        r#"
+    if !aur_packages.is_empty() {
+        println!(
+            "{}",
+            r#"
              _   _   _ ____
             / \ | | | |  _ \
            / _ \| | | | |_) |
@@ -148,9 +149,10 @@ pub async fn on_search(query: &str, skip: Option<bool>, max: Option<usize>) {
          /_/   \_\___/|_| \_\
 
 "#
-        .blue()
-        .bold()
-    );
+            .blue()
+            .bold()
+        );
+    }
 
     for (index, package) in aur_packages.iter().enumerate() {
         package.display(if skip_prompt {
@@ -160,7 +162,7 @@ pub async fn on_search(query: &str, skip: Option<bool>, max: Option<usize>) {
         });
     }
 
-    if !skip_prompt {
+    if !skip_prompt && !packages.is_empty() && !aur_packages.is_empty() {
         let number = get_number_in_range(
             "Type the number of the package to install: ",
             packages.len() + aur_packages.len(),

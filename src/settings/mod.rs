@@ -18,6 +18,9 @@ pub struct Settings {
 
     #[serde(default = "get_false")]
     pub skip_aur_update: bool,
+
+    #[serde(default = "get_true")]
+    pub install_search_fallback: bool,
 }
 
 pub fn get_settings_path() -> PathBuf {
@@ -32,6 +35,10 @@ pub fn get_settings_path() -> PathBuf {
 
 fn get_false() -> bool {
     false
+}
+
+fn get_true() -> bool {
+    true
 }
 
 fn default_max_search_results() -> usize {
@@ -49,6 +56,7 @@ fn get_default_settings() -> Settings {
         skip_search_prompt: false,
         max_search_results: default_max_search_results(),
         skip_aur_update: false,
+        install_search_fallback: true,
     }
 }
 
