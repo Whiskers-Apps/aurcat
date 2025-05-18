@@ -187,7 +187,7 @@ pub async fn on_search(query: &str, skip: Option<bool>, max: Option<usize>) {
     }
 }
 
-/// Searches for packages in the official repoistories matching the search query
+/// Searches for packages in the official repositories matching the search query
 pub fn get_package_search(query: &str) -> Result<Vec<Package>, Box<dyn Error>> {
     let command = Command::new("pacman").args(["-Ss", query]).output()?;
     let output = String::from_utf8_lossy(&command.stdout);

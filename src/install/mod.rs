@@ -255,6 +255,9 @@ pub async fn install_aur_package(
             &package_path.into_os_string().into_string().unwrap(),
             "--strip-components=1",
         ])
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .current_dir(&version_dir)
         .output()?;
 
@@ -277,6 +280,9 @@ pub async fn install_aur_package(
     let command = Command::new("makepkg")
         .args(args)
         .current_dir(&version_dir)
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .spawn()?
         .wait()?;
 
