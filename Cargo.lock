@@ -60,6 +60,7 @@ dependencies = [
  "colored",
  "dirs",
  "serde",
+ "sniffer-rs",
  "strip-ansi-escapes",
  "toml",
 ]
@@ -298,6 +299,12 @@ checksum = "5417783452c2be558477e104686f7de5dae53dba813c28435e0e70f82d9b04ee"
 dependencies = [
  "serde_core",
 ]
+
+[[package]]
+name = "sniffer-rs"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6aed0b6208519a3b5ec7f9224e2543c5a1ec49bfe42fd14414cc5c0aec6f583a"
 
 [[package]]
 name = "strip-ansi-escapes"

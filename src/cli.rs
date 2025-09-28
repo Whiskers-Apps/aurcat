@@ -11,6 +11,7 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum MainCommand {
+    #[command(about = "Install a package")]
     Install {
         #[arg(long, group = "search_fallback", action = ArgAction::SetTrue, help = "Skip search if the package is not found")]
         skip_search: bool,
@@ -33,6 +34,8 @@ pub enum MainCommand {
         #[arg(help = "The packages to install", required = false)]
         packages: Vec<String>,
     },
+
+    #[command(about = "Uninstall a package")]
     Uninstall {
         #[arg(long, group = "confirm_uninstall", action = ArgAction::SetTrue, help = "Skips the prompt to confirm package uninstall")]
         skip_confirm: bool,
@@ -43,6 +46,8 @@ pub enum MainCommand {
         #[arg(help = "The packages to uninstall", required = false)]
         packages: Vec<String>,
     },
+
+    #[command(about = "Update packages")]
     Update {
         #[arg(long, group = "update_aur", action = ArgAction::SetTrue, help = "Skip AUR package updates")]
         skip_aur: bool,
@@ -56,11 +61,28 @@ pub enum MainCommand {
         #[arg(long, group = "review_pkgbuild", action = ArgAction::SetTrue, help = "Review PKGBUILD")]
         review: bool,
     },
-    Search {
-        package: String,
-    },
+
+    #[command(about = "Search for a package")]
+    Search { package: String },
+
+    #[command(about = "List installed packages")]
     List {
         #[arg(long, action = ArgAction::SetTrue, help = "Only list AUR packages")]
         aur: bool,
+
+        #[arg(help = "Filter by name")]
+        filter: Option<String>,
+    },
+
+    #[command(about = "Update pacman signing keys")]
+    UpdateKeys {},
+
+    #[command(about = "Remove pacman lock file")]
+    RemoveLock {},
+
+    #[command(about = "Clear Cache")]
+    ClearCache {
+        #[arg(long, help = "Skip AUR package updates")]
+        versions: usize,
     },
 }

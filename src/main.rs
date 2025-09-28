@@ -2,7 +2,11 @@ use std::error::Error;
 
 use clap::Parser;
 
-use crate::{cli::Cli, config::get_config, list::on_list_command};
+use crate::{
+    cli::{Cli, MainCommand},
+    config::get_config,
+    list::on_list_command,
+};
 
 pub mod cli;
 pub mod config;
@@ -15,7 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match cli.command {
         Some(command) => match command {
-            cli::MainCommand::Install {
+            MainCommand::Install {
                 skip_search,
                 search,
                 skip_confirm,
@@ -24,19 +28,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                 review,
                 packages,
             } => {}
-            cli::MainCommand::Uninstall {
+            MainCommand::Uninstall {
                 skip_confirm,
                 confirm,
                 packages,
             } => todo!(),
-            cli::MainCommand::Update {
+            MainCommand::Update {
                 skip_aur,
                 aur,
                 skip_review,
                 review,
             } => todo!(),
-            cli::MainCommand::Search { package } => todo!(),
-            cli::MainCommand::List { aur } => on_list_command(aur)?,
+            MainCommand::Search { package } => todo!(),
+            MainCommand::List { aur, filter } => on_list_command(aur, filter)?,
+            MainCommand::UpdateKeys {} => todo!(),
+            MainCommand::RemoveLock {} => todo!(),
+            MainCommand::ClearCache { versions } => todo!(),
         },
         None => {
             // Install given packages
