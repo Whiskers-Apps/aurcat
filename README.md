@@ -3,10 +3,9 @@ The program it's still in development phase.
 
 # Features
 ## AUR
-- [ ] Install AUR Package
 - [ ] Verify AUR Package Conflicts
 - [ ] Verify AUR Package Dependencies
-- [ ] Optional PKG Review
+- [ ] Optional Package Review
 - [ ] Uninstall Package
 - [ ] List Installed AUR Packages
 
