@@ -7,12 +7,12 @@ The program it's still in development phase.
 - [ ] Verify AUR Package Dependencies
 - [ ] Optional Package Review
 - [ ] Uninstall Package
-- [ ] List Installed AUR Packages
 
 ## Global
 - [ ] Updates
 - [ ] Install
 - [ ] Uninstall
+- [x] List Packages
 
 ## Utils
 - [ ] Update Signing Keys
