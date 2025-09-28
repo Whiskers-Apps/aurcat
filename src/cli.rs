@@ -4,9 +4,6 @@ use clap::{ArgAction, Parser, Subcommand};
 pub struct Cli {
     #[command(subcommand)]
     pub command: Option<MainCommand>,
-
-    #[arg(help = "The packages to install", required = false)]
-    pub packages: Vec<String>,
 }
 
 #[derive(Subcommand, Debug)]
