@@ -20,7 +20,10 @@ pub fn run_hidden(command: &[&str]) -> Result<String, Box<dyn Error>> {
         })
         .collect();
 
-    let result = Command::new(main).args(args).output()?;
+    let result = Command::new(main)
+        .args(args)
+        .stdin(Stdio::inherit())
+        .output()?;
 
     let bytes = result.stdout;
     let clean_bytes = strip(&bytes);
@@ -61,4 +64,8 @@ pub fn run<S: AsRef<str>>(command: &[S]) -> Result<String, Box<dyn Error>> {
     let output = String::from_utf8(clean_bytes)?;
 
     return Ok(output);
+}
+
+pub fn show_message<S: AsRef<str>>(message: S) {
+    println!("😺 {}", message.as_ref());
 }

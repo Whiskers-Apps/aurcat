@@ -1,13 +1,13 @@
 use std::{env, error::Error};
 
 use clap::{CommandFactory, Parser, error::ErrorKind};
-use clap_help::Printer;
 
 use crate::{
     clear_cache::on_clear_cache_command,
     cli::{Cli, MainCommand},
     config::get_config,
     list::on_list_command,
+    remove_lock::on_remove_lock_command,
     utils::run,
 };
 
@@ -15,6 +15,7 @@ pub mod clear_cache;
 pub mod cli;
 pub mod config;
 pub mod list;
+pub mod remove_lock;
 pub mod utils;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -50,7 +51,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     MainCommand::Search { package } => todo!(),
                     MainCommand::List { aur, filter } => on_list_command(aur, filter)?,
                     MainCommand::UpdateKeys {} => todo!(),
-                    MainCommand::RemoveLock {} => todo!(),
+                    MainCommand::RemoveLock {} => on_remove_lock_command()?,
                     MainCommand::ClearCache { versions } => {
                         let versions = match versions {
                             Some(versions) => versions,

@@ -16,8 +16,8 @@ The program it's still in development phase.
 
 ## Utils
 - [ ] Update Signing Keys
-- [ ] Remove Pacman Lock
-- [ ] Clear Pacman Cache
+- [x] Remove Pacman Lock
+- [x] Clear Pacman Cache
 - [x] Fallback To Pacman Commands
 
 # Dependencies
