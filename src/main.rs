@@ -8,6 +8,8 @@ use crate::{
     config::get_config,
     list::on_list_command,
     remove_lock::on_remove_lock_command,
+    search::on_search_command,
+    update_keys::on_update_keys_command,
     utils::run,
 };
 
@@ -16,6 +18,8 @@ pub mod cli;
 pub mod config;
 pub mod list;
 pub mod remove_lock;
+pub mod search;
+pub mod update_keys;
 pub mod utils;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -35,7 +39,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         review,
                         packages,
                     } => {
-                        println!("bacalhau");
+                        // pacman -S <repo_name>/<package_name>
                     }
                     MainCommand::Uninstall {
                         skip_confirm,
@@ -48,9 +52,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                         skip_review,
                         review,
                     } => todo!(),
-                    MainCommand::Search { package } => todo!(),
+                    MainCommand::Search { package } => on_search_command(package)?,
                     MainCommand::List { aur, filter } => on_list_command(aur, filter)?,
-                    MainCommand::UpdateKeys {} => todo!(),
+                    MainCommand::UpdateKeys {} => on_update_keys_command()?,
                     MainCommand::RemoveLock {} => on_remove_lock_command()?,
                     MainCommand::ClearCache { versions } => {
                         let versions = match versions {

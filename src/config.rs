@@ -12,6 +12,7 @@ pub struct Config {
     pub aur_review: bool,
     pub cache_version_count: usize,
     pub skip_aur_update: bool,
+    pub max_results: usize,
 }
 
 impl Default for Config {
@@ -24,6 +25,7 @@ impl Default for Config {
             skip_uninstall_confirm: false,
             skip_review: true,
             skip_aur_update: false,
+            max_results: 30,
         }
     }
 }

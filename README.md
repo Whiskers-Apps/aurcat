@@ -15,15 +15,16 @@ The program it's still in development phase.
 - [x] List Packages
 
 ## Utils
-- [ ] Update Signing Keys
+- [x] Update Signing Keys
 - [x] Remove Pacman Lock
 - [x] Clear Pacman Cache
 - [x] Fallback To Pacman Commands
 
 # Dependencies
-The program requires some depedencies for some of the features:
+The program requires depedencies for some of the features:
 ```
-sudo pacman -S pacman-contrib
+sudo pacman -S pacman-contrib archlinux-keyring
 ```
 
-- `pacman-contrib` To clear pacman cache
+- `pacman-contrib` To clear pacman cache.
+- `archlinux-keyring` To update signing keys. Important from time to time.
