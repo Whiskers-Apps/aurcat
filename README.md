@@ -19,3 +19,11 @@ The program it's still in development phase.
 - [ ] Remove Pacman Lock
 - [ ] Clear Pacman Cache
 - [x] Fallback To Pacman Commands
+
+# Dependencies
+The program requires some depedencies for some of the features:
+```
+sudo pacman -S pacman-contrib
+```
+
+- `pacman-contrib` To clear pacman cache

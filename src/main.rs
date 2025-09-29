@@ -4,12 +4,14 @@ use clap::{CommandFactory, Parser, error::ErrorKind};
 use clap_help::Printer;
 
 use crate::{
+    clear_cache::on_clear_cache_command,
     cli::{Cli, MainCommand},
     config::get_config,
     list::on_list_command,
     utils::run,
 };
 
+pub mod clear_cache;
 pub mod cli;
 pub mod config;
 pub mod list;
@@ -49,7 +51,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                     MainCommand::List { aur, filter } => on_list_command(aur, filter)?,
                     MainCommand::UpdateKeys {} => todo!(),
                     MainCommand::RemoveLock {} => todo!(),
-                    MainCommand::ClearCache { versions } => todo!(),
+                    MainCommand::ClearCache { versions } => {
+                        let versions = match versions {
+                            Some(versions) => versions,
+                            None => config.cache_version_count,
+                        };
+
+                        on_clear_cache_command(versions)?;
+                    }
                 }
             }
         }

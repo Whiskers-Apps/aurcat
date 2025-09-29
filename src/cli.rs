@@ -79,7 +79,7 @@ pub enum MainCommand {
 
     #[command(about = "Clear Cache")]
     ClearCache {
-        #[arg(long, help = "Skip AUR package updates")]
-        versions: usize,
+        #[arg(long, help = "The amount of cached versions to keep")]
+        versions: Option<usize>,
     },
 }
