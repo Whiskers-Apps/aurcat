@@ -18,3 +18,4 @@ The program it's still in development phase.
 - [ ] Update Signing Keys
 - [ ] Remove Pacman Lock
 - [ ] Clear Pacman Cache
+- [x] Fallback To Pacman Commands
