@@ -1,6 +1,7 @@
 use std::{env, error::Error};
 
-use clap::Parser;
+use clap::{CommandFactory, Parser, error::ErrorKind};
+use clap_help::Printer;
 
 use crate::{
     cli::{Cli, MainCommand},
@@ -18,52 +19,76 @@ fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::try_parse();
     let config = get_config()?;
 
-    if let Ok(cli) = cli {
-        match cli.command {
-            Some(command) => match command {
-                MainCommand::Install {
-                    skip_search,
-                    search,
-                    skip_confirm,
-                    confirm,
-                    skip_review,
-                    review,
-                    packages,
-                } => {}
-                MainCommand::Uninstall {
-                    skip_confirm,
-                    confirm,
-                    packages,
-                } => todo!(),
-                MainCommand::Update {
-                    skip_aur,
-                    aur,
-                    skip_review,
-                    review,
-                } => todo!(),
-                MainCommand::Search { package } => todo!(),
-                MainCommand::List { aur, filter } => on_list_command(aur, filter)?,
-                MainCommand::UpdateKeys {} => todo!(),
-                MainCommand::RemoveLock {} => todo!(),
-                MainCommand::ClearCache { versions } => todo!(),
-            },
-            None => {
-                // Update
+    match cli {
+        Ok(cli) => {
+            if let Some(command) = cli.command {
+                match command {
+                    MainCommand::Install {
+                        skip_search,
+                        search,
+                        skip_confirm,
+                        confirm,
+                        skip_review,
+                        review,
+                        packages,
+                    } => {
+                        println!("bacalhau");
+                    }
+                    MainCommand::Uninstall {
+                        skip_confirm,
+                        confirm,
+                        packages,
+                    } => todo!(),
+                    MainCommand::Update {
+                        skip_aur,
+                        aur,
+                        skip_review,
+                        review,
+                    } => todo!(),
+                    MainCommand::Search { package } => todo!(),
+                    MainCommand::List { aur, filter } => on_list_command(aur, filter)?,
+                    MainCommand::UpdateKeys {} => todo!(),
+                    MainCommand::RemoveLock {} => todo!(),
+                    MainCommand::ClearCache { versions } => todo!(),
+                }
             }
         }
-    } else {
-        let mut args: Vec<String> = env::args().collect();
+        Err(e) => {
+            let mut args: Vec<String> = env::args().collect();
+            args = args
+                .into_iter()
+                .enumerate()
+                .filter_map(|(index, arg)| if index > 0 { Some(arg) } else { None })
+                .collect();
 
-        args = args
-            .into_iter()
-            .enumerate()
-            .filter_map(|(index, arg)| if index > 0 { Some(arg) } else { None })
-            .collect();
+            if args.len() >= 1 {
+                let commands = vec![
+                    "install",
+                    "uninstall",
+                    "update",
+                    "search",
+                    "list",
+                    "update-keys",
+                    "remove-lock",
+                    "clear-cache",
+                ];
 
-        let mut command = vec!["sudo".to_string(), "pacman".to_string()];
-        command.append(&mut args);
+                let main_command = args.get(0).unwrap();
 
-        run(&command)?;
+                if e.kind() == ErrorKind::UnknownArgument
+                    && !commands.iter().any(|c| c == &main_command)
+                {
+                    let mut command = vec!["sudo".to_string(), "pacman".to_string()];
+                    command.append(&mut args);
+
+                    run(&command)?;
+
+                    return Ok(());
+                }
+            }
+
+            e.print()?;
+        }
     }
 
     return Ok(());
