@@ -1,21 +1,23 @@
 use std::{env, error::Error};
 
-use clap::{CommandFactory, Parser, error::ErrorKind};
+use clap::{Parser, error::ErrorKind};
 
 use crate::{
     clear_cache::on_clear_cache_command,
     cli::{Cli, MainCommand},
     config::get_config,
+    install::on_install_command,
     list::on_list_command,
     remove_lock::on_remove_lock_command,
     search::on_search_command,
     update_keys::on_update_keys_command,
-    utils::run,
+    utils::{run, show_message},
 };
 
 pub mod clear_cache;
 pub mod cli;
 pub mod config;
+pub mod install;
 pub mod list;
 pub mod remove_lock;
 pub mod search;
@@ -31,27 +33,57 @@ fn main() -> Result<(), Box<dyn Error>> {
             if let Some(command) = cli.command {
                 match command {
                     MainCommand::Install {
-                        skip_search,
+                        nosearch: skip_search,
                         search,
-                        skip_confirm,
+                        noconfirm: skip_confirm,
                         confirm,
-                        skip_review,
+                        noreview: skip_review,
                         review,
                         packages,
                     } => {
-                        // pacman -S <repo_name>/<package_name>
+                        let search_fallback = match (skip_search, search) {
+                            (true, false) => false,
+                            (false, true) => true,
+                            (false, false) => config.search_fallback,
+                            _ => panic!("UUH?"),
+                        };
+
+                        let confirm_installation = match (skip_confirm, confirm) {
+                            (true, false) => false,
+                            (false, true) => true,
+                            (false, false) => config.confirm_installation,
+                            _ => panic!("UUH?"),
+                        };
+
+                        let review = match (skip_review, review) {
+                            (true, false) => false,
+                            (false, true) => true,
+                            (false, false) => config.review,
+                            _ => panic!("UUH?"),
+                        };
+
+                        on_install_command(
+                            packages,
+                            search_fallback,
+                            review,
+                            confirm_installation,
+                        )?;
                     }
                     MainCommand::Uninstall {
-                        skip_confirm,
+                        noconfirm: skip_confirm,
                         confirm,
                         packages,
-                    } => todo!(),
+                    } => {
+                        println!("{} {} {:?}", skip_confirm, confirm, packages);
+                    }
                     MainCommand::Update {
-                        skip_aur,
+                        noaur: skip_aur,
                         aur,
-                        skip_review,
+                        noreview: skip_review,
                         review,
-                    } => todo!(),
+                    } => {
+                        println!("{} {} {} {}", skip_aur, aur, skip_review, review);
+                    }
                     MainCommand::Search { package } => on_search_command(package)?,
                     MainCommand::List { aur, filter } => on_list_command(aur, filter)?,
                     MainCommand::UpdateKeys {} => on_update_keys_command()?,
@@ -90,12 +122,27 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let main_command = args.get(0).unwrap();
 
                 if e.kind() == ErrorKind::UnknownArgument
-                    && !commands.iter().any(|c| c == &main_command)
+                    || e.kind() == ErrorKind::InvalidSubcommand
+                        && !commands.iter().any(|c| c == &main_command)
                 {
-                    let mut command = vec!["sudo".to_string(), "pacman".to_string()];
-                    command.append(&mut args);
+                    match config.install_fallback {
+                        true => {
+                            on_install_command(
+                                args,
+                                config.search_fallback,
+                                config.review,
+                                config.confirm_installation,
+                            )?;
+                        }
+                        false => {
+                            show_message("Using Pacman");
 
-                    run(&command)?;
+                            let mut command = vec!["sudo".to_string(), "pacman".to_string()];
+                            command.append(&mut args);
+
+                            run(&command)?;
+                        }
+                    }
 
                     return Ok(());
                 }

@@ -1,18 +1,36 @@
-use std::{default, error::Error, fs, path::PathBuf};
+use std::{error::Error, fs, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(default)]
 pub struct Config {
-    pub skip_search: bool,
-    pub skip_install_confirm: bool,
+    /// Search for package if not found
+    pub search_fallback: bool,
+
+    /// Skips the install confirmation
+    pub confirm_installation: bool,
+
+    /// Skips the uninstall confirmation
     pub skip_uninstall_confirm: bool,
-    pub skip_review: bool,
+
+    /// Skips the review prompt
+    pub review: bool,
+
+    /// Show PKGBUILD
     pub aur_review: bool,
+
+    /// The amount of cached package versions to keep
     pub cache_version_count: usize,
+
+    /// Don't update AUR packages
     pub skip_aur_update: bool,
+
+    /// Max Results Per Search Query
     pub max_results: usize,
+
+    /// Fallback to install packages. If disabled it will use pacman with the parameters provided.
+    pub install_fallback: bool,
 }
 
 impl Default for Config {
@@ -20,12 +38,13 @@ impl Default for Config {
         Self {
             aur_review: false,
             cache_version_count: 5,
-            skip_search: false,
-            skip_install_confirm: false,
+            search_fallback: true,
+            confirm_installation: false,
             skip_uninstall_confirm: false,
-            skip_review: true,
+            review: true,
             skip_aur_update: false,
             max_results: 30,
+            install_fallback: true,
         }
     }
 }

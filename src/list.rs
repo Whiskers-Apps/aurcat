@@ -1,4 +1,4 @@
-use std::{error::Error, process::Command};
+use std::error::Error;
 
 use sniffer_rs::sniffer::Sniffer;
 
@@ -18,7 +18,7 @@ pub fn on_list_command(aur: bool, filter: Option<String>) -> Result<(), Box<dyn 
         .set_do_jaro_winkler_match(false);
 
     let mut packages: Vec<PackageQuery> = if aur {
-        get_aur_packages()?
+        get_aur_packages(true)?
     } else {
         get_all_packages()?
     };
@@ -65,7 +65,7 @@ pub fn get_repo_packages() -> Result<Vec<PackageQuery>, Box<dyn Error>> {
     return Ok(packages);
 }
 
-pub fn get_aur_packages() -> Result<Vec<PackageQuery>, Box<dyn Error>> {
+pub fn get_aur_packages(filter_debug: bool) -> Result<Vec<PackageQuery>, Box<dyn Error>> {
     let packages_output = run_hidden(&["pacman", "-Qm"])?;
 
     let packages: Vec<PackageQuery> = packages_output
@@ -76,6 +76,10 @@ pub fn get_aur_packages() -> Result<Vec<PackageQuery>, Box<dyn Error>> {
 
             let package = splitted.next()?.to_string();
             let version = splitted.next()?.to_string();
+
+            if filter_debug && package.ends_with("-debug") {
+                return None;
+            }
 
             Some(PackageQuery {
                 package,
@@ -90,7 +94,7 @@ pub fn get_aur_packages() -> Result<Vec<PackageQuery>, Box<dyn Error>> {
 
 pub fn get_all_packages() -> Result<Vec<PackageQuery>, Box<dyn Error>> {
     let mut pkgs = get_repo_packages()?;
-    let mut aur_pkgs = get_aur_packages()?;
+    let mut aur_pkgs = get_aur_packages(true)?;
     pkgs.append(&mut aur_pkgs);
 
     return Ok(pkgs);

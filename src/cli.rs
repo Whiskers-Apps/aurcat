@@ -11,19 +11,19 @@ pub enum MainCommand {
     #[command(about = "Install a package")]
     Install {
         #[arg(long, group = "search_fallback", action = ArgAction::SetTrue, help = "Skip search if the package is not found")]
-        skip_search: bool,
+        nosearch: bool,
 
         #[arg(long, group = "search_fallback", action = ArgAction::SetTrue, help = "Search if the package is not found")]
         search: bool,
 
         #[arg(long, group = "confirm_install", action = ArgAction::SetTrue, help = "Skip the prompt to confirm package installation")]
-        skip_confirm: bool,
+        noconfirm: bool,
 
         #[arg(long, group = "confirm_install", action = ArgAction::SetTrue, help = "Prompts a message to confirm installation")]
         confirm: bool,
 
         #[arg(long, group = "review_pkgbuild", action = ArgAction::SetTrue, help = "Skip PKGBUILD review")]
-        skip_review: bool,
+        noreview: bool,
 
         #[arg(long, group = "review_pkgbuild", action = ArgAction::SetTrue, help = "Review PKGBUILD")]
         review: bool,
@@ -35,7 +35,7 @@ pub enum MainCommand {
     #[command(about = "Uninstall a package")]
     Uninstall {
         #[arg(long, group = "confirm_uninstall", action = ArgAction::SetTrue, help = "Skips the prompt to confirm package uninstall")]
-        skip_confirm: bool,
+        noconfirm: bool,
 
         #[arg(long, group = "confirm_uninstall", action = ArgAction::SetTrue, help = "Prompts a message to confirm uninstall")]
         confirm: bool,
@@ -47,13 +47,13 @@ pub enum MainCommand {
     #[command(about = "Update packages")]
     Update {
         #[arg(long, group = "update_aur", action = ArgAction::SetTrue, help = "Skip AUR package updates")]
-        skip_aur: bool,
+        noaur: bool,
 
         #[arg(long, group = "update_aur", action = ArgAction::SetTrue, help = "Updates AUR packages")]
         aur: bool,
 
         #[arg(long, group = "review_pkgbuild", action = ArgAction::SetTrue, help = "Skip PKGBUILD review")]
-        skip_review: bool,
+        noreview: bool,
 
         #[arg(long, group = "review_pkgbuild", action = ArgAction::SetTrue, help = "Review PKGBUILD")]
         review: bool,
