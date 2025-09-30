@@ -24,7 +24,8 @@ pub mod search;
 pub mod update_keys;
 pub mod utils;
 
-fn main() -> Result<(), Box<dyn Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::try_parse();
     let config = get_config()?;
 
@@ -84,7 +85,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     } => {
                         println!("{} {} {} {}", skip_aur, aur, skip_review, review);
                     }
-                    MainCommand::Search { package } => on_search_command(package)?,
+                    MainCommand::Search { package } => on_search_command(package).await?,
                     MainCommand::List { aur, filter } => on_list_command(aur, filter)?,
                     MainCommand::UpdateKeys {} => on_update_keys_command()?,
                     MainCommand::RemoveLock {} => on_remove_lock_command()?,
