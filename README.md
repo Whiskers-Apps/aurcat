@@ -6,13 +6,13 @@ The program it's still in development phase.
 - [ ] Verify AUR Package Conflicts
 - [ ] Verify AUR Package Dependencies
 - [ ] Optional Package Review
-- [ ] Uninstall Package
 
 ## Global
 - [ ] Updates
 - [ ] Install
 - [ ] Uninstall
-- [x] List Packages
+- [x] Search
+- [x] List
 
 ## Utils
 - [x] Update Signing Keys
