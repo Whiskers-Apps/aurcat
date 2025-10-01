@@ -85,7 +85,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     } => {
                         println!("{} {} {} {}", skip_aur, aur, skip_review, review);
                     }
-                    MainCommand::Search { package } => on_search_command(package).await?,
+                    MainCommand::Search { package } => on_search_command(package, true).await?,
                     MainCommand::List { aur, filter } => on_list_command(aur, filter)?,
                     MainCommand::UpdateKeys {} => on_update_keys_command()?,
                     MainCommand::RemoveLock {} => on_remove_lock_command()?,

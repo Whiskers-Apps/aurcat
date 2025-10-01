@@ -2,11 +2,16 @@ use std::error::Error;
 
 use colored::Colorize;
 use convert_case::{Case, Casing};
-use reqwest::Client;
+use inquire::{
+    CustomType, Text,
+    ui::{RenderConfig, Styled},
+    validator::Validation,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{
     config::get_config,
+    install::{install_aur_package, install_from_query},
     utils::{run_hidden, show_message},
 };
 
@@ -54,7 +59,7 @@ pub struct AurSearchResult {
     pub version: String,
 }
 
-pub async fn on_search_command(package: String) -> Result<(), Box<dyn Error>> {
+pub async fn on_search_command(package: String, install_mode: bool) -> Result<(), Box<dyn Error>> {
     let max_results = get_config()?.max_results;
 
     let repo_packages = search_repo_packages(&package)?;
@@ -81,9 +86,14 @@ pub async fn on_search_command(package: String) -> Result<(), Box<dyn Error>> {
         println!("📦 Repositories Packages\n");
     }
 
-    for query in cut_repo_packages {
+    for (index, query) in cut_repo_packages.iter().enumerate() {
         println!(
-            "{} {} {}\n{}\n",
+            "{}{} {} {}\n{}\n",
+            if install_mode {
+                &format!("{} | ", index + 1).bold()
+            } else {
+                ""
+            },
             &query.repo.to_case(Case::Upper).green().bold(),
             &query.package.bold(),
             &query.version.bold(),
@@ -95,9 +105,14 @@ pub async fn on_search_command(package: String) -> Result<(), Box<dyn Error>> {
         println!("🌍 AUR Packages\n");
     }
 
-    for query in cut_aur_packages {
+    for (index, query) in cut_aur_packages.iter().enumerate() {
         println!(
-            "{} {} {}\n{}\n",
+            "{}{} {} {}\n{}\n",
+            if install_mode {
+                &format!("{} | ", cut_repo_packages.len() + index + 1).bold()
+            } else {
+                ""
+            },
             "AUR".blue().bold(),
             if query.out_of_date {
                 &query.package.red().bold()
@@ -111,9 +126,60 @@ pub async fn on_search_command(package: String) -> Result<(), Box<dyn Error>> {
 
     if repo_packages_len == 0 && aur_packages_len == 0 {
         show_message("Package not Found");
+        return Ok(());
+    }
+
+    let packages_clone = cut_repo_packages.clone();
+    let aur_packages_clone = aur_packages.clone();
+
+    if install_mode {
+        let result = CustomType::<usize>::new(&format!(
+            "What package yould you like to install? [1-{}]\n",
+            cut_repo_packages.len() + cut_aur_packages.len()
+        ))
+        .with_validator(move |input: &usize| {
+            if input >= &0 && input <= &(packages_clone.len() + aur_packages_clone.clone().len()) {
+                Ok(Validation::Valid)
+            } else {
+                Ok(Validation::Invalid("Invalid Package Index".into()))
+            }
+        })
+        .with_default(0)
+        .prompt_skippable();
+
+        let result = result?;
+
+        match result {
+            Some(index) => {
+                if index == 0 {
+                    return Ok(());
+                }
+
+                if index <= cut_repo_packages.len() {
+                    let query = cut_repo_packages
+                        .get(index - 1)
+                        .ok_or_else(|| "Error getting package".to_string())?;
+
+                    install_from_query(query)?;
+                } else {
+                    let query = cut_aur_packages
+                        .get(index - 1)
+                        .ok_or_else(|| "Error getting package".to_string())?;
+
+                    install_aur_package(&query.package).await?;
+                };
+            }
+            None => return Ok(()),
+        }
     }
 
     Ok(())
+}
+
+fn get_render_config() -> RenderConfig<'static> {
+    let mut render_config = RenderConfig::default();
+    render_config.prompt_prefix = Styled::new("");
+    render_config
 }
 
 pub fn search_repo_packages(package: &str) -> Result<Vec<SearchQuery>, Box<dyn Error>> {
