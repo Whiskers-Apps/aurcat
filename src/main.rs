@@ -63,12 +63,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             _ => panic!("UUH?"),
                         };
 
-                        on_install_command(
-                            packages,
-                            search_fallback,
-                            review,
-                            confirm_installation,
-                        )?;
+                        on_install_command(packages, search_fallback, review, confirm_installation)
+                            .await?;
                     }
                     MainCommand::Uninstall {
                         noconfirm: skip_confirm,
@@ -85,7 +81,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     } => {
                         println!("{} {} {} {}", skip_aur, aur, skip_review, review);
                     }
-                    MainCommand::Search { package } => on_search_command(package, true).await?,
+                    MainCommand::Search { package } => {
+                        on_search_command(package, true, None).await?
+                    }
                     MainCommand::List { aur, filter } => on_list_command(aur, filter)?,
                     MainCommand::UpdateKeys {} => on_update_keys_command()?,
                     MainCommand::RemoveLock {} => on_remove_lock_command()?,
@@ -133,7 +131,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 config.search_fallback,
                                 config.review,
                                 config.confirm_installation,
-                            )?;
+                            )
+                            .await?;
                         }
                         false => {
                             show_message("Using Pacman");

@@ -59,7 +59,16 @@ pub struct AurSearchResult {
     pub version: String,
 }
 
-pub async fn on_search_command(package: String, install_mode: bool) -> Result<(), Box<dyn Error>> {
+pub async fn on_search_command(
+    package: String,
+    install_mode: bool,
+    review: Option<bool>,
+) -> Result<(), Box<dyn Error>> {
+    let review = match review {
+        Some(review) => review,
+        None => false,
+    };
+
     let max_results = get_config()?.max_results;
 
     let repo_packages = search_repo_packages(&package)?;
@@ -166,7 +175,7 @@ pub async fn on_search_command(package: String, install_mode: bool) -> Result<()
                         .get(index - 1)
                         .ok_or_else(|| "Error getting package".to_string())?;
 
-                    install_aur_package(&query.package).await?;
+                    install_aur_package(&query.package, review).await?;
                 };
             }
             None => return Ok(()),

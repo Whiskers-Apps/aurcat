@@ -1,6 +1,7 @@
 use std::{
     error::Error,
     fs::{self},
+    process::{Command, exit},
 };
 
 use reqwest::get;
@@ -8,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     config::get_config,
-    search::SearchQuery,
+    search::{SearchQuery, on_search_command, search_aur_packages},
     utils::{run, run_hidden_in_path, run_in_path, show_message},
 };
 
@@ -29,15 +30,45 @@ pub struct AurPackageInfoResult {
     version: String,
 }
 
-pub fn on_install_command(
+pub async fn on_install_command(
     packages: Vec<String>,
     search_fallback: bool,
     review: bool,
     confirm_installation: bool,
 ) -> Result<(), Box<dyn Error>> {
-    println!("{} {}", search_fallback, review);
+    // println!("{} {}", search_fallback, review);
 
-    // TODO: Implement search fallback and AUR install
+    let packages_len = packages.len();
+
+    if packages_len == 1 {
+        let package = packages.get(0).unwrap();
+        let command = Command::new("pacman").args(["-Si", package]).output()?;
+        let found = command.status.success();
+
+        if found {
+            install_packages(vec![package.to_string()], confirm_installation)?;
+            exit(0);
+        }
+
+        let aur_packages = search_aur_packages(package).await?;
+
+        let found = aur_packages
+            .iter()
+            .any(|aur_package| &aur_package.package == package);
+
+        if found {
+            install_aur_package(package, review).await?;
+            exit(0);
+        }
+
+        if search_fallback {
+            on_search_command(package.to_owned(), true, Some(review)).await?;
+            exit(0);
+        }
+
+        show_message("Package not found");
+        exit(1);
+    }
 
     // This should be implemented in case a package exist on multiple repos like on cachyos
     // pacman -S <repo_name>/<package_name>
@@ -72,7 +103,7 @@ pub fn install_from_query(query: &SearchQuery) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub async fn install_aur_package(package: &str) -> Result<(), Box<dyn Error>> {
+pub async fn install_aur_package(package: &str, review: bool) -> Result<(), Box<dyn Error>> {
     let url = format!("https://aur.archlinux.org/rpc/?v=5&type=info&arg={package}");
 
     let response_json = reqwest::get(url).await?.text().await?;
