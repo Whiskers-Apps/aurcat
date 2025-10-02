@@ -3,13 +3,11 @@ The program it's still in development phase.
 
 # Features
 ## AUR
-- [ ] Verify AUR Package Conflicts
-- [ ] Verify AUR Package Dependencies
 - [ ] Optional Package Review
 
 ## Global
 - [ ] Updates
-- [ ] Install
+- [x] Install
 - [ ] Uninstall
 - [x] Search
 - [x] List
