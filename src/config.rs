@@ -8,29 +8,26 @@ pub struct Config {
     /// Search for package if not found
     pub search_fallback: bool,
 
-    /// Skips the install confirmation
+    /// Prompt a confirm message when installing a package
     pub confirm_installation: bool,
 
-    /// Skips the uninstall confirmation
-    pub skip_uninstall_confirm: bool,
+    /// Prompt a confirm message when uninstalling a package
+    pub uninstall_confirm: bool,
 
-    /// Skips the review prompt
-    pub review: bool,
-
-    /// Show PKGBUILD
+    /// Review Package Build
     pub aur_review: bool,
 
     /// The amount of cached package versions to keep
     pub cache_version_count: usize,
 
-    /// Don't update AUR packages
-    pub skip_aur_update: bool,
+    /// Update AUR packages
+    pub update_aur: bool,
 
-    /// Max Results Per Search Query
+    /// Max Results Per Search Query. For example 30 will show 30 repo packages and 30 aur packages
     pub max_results: usize,
 
-    /// Fallback to install packages. If disabled it will use pacman with the parameters provided.
-    pub install_fallback: bool,
+    /// Fallback to pacman commands. If disabled it will use install command instead.
+    pub pacman_fallback: bool,
 }
 
 impl Default for Config {
@@ -39,12 +36,11 @@ impl Default for Config {
             aur_review: false,
             cache_version_count: 5,
             search_fallback: true,
-            confirm_installation: false,
-            skip_uninstall_confirm: false,
-            review: true,
-            skip_aur_update: false,
+            confirm_installation: true,
+            uninstall_confirm: true,
+            update_aur: true,
             max_results: 30,
-            install_fallback: true,
+            pacman_fallback: false,
         }
     }
 }

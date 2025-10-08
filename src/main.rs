@@ -10,6 +10,8 @@ use crate::{
     list::on_list_command,
     remove_lock::on_remove_lock_command,
     search::on_search_command,
+    uninstall::on_uninstall_command,
+    update::on_update_command,
     update_keys::on_update_keys_command,
     utils::{run, show_message},
 };
@@ -21,6 +23,8 @@ pub mod install;
 pub mod list;
 pub mod remove_lock;
 pub mod search;
+pub mod uninstall;
+pub mod update;
 pub mod update_keys;
 pub mod utils;
 
@@ -59,7 +63,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         let review = match (skip_review, review) {
                             (true, false) => false,
                             (false, true) => true,
-                            (false, false) => config.review,
+                            (false, false) => config.aur_review,
                             _ => panic!("UUH?"),
                         };
 
@@ -67,11 +71,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             .await?;
                     }
                     MainCommand::Uninstall {
-                        noconfirm: skip_confirm,
+                        noconfirm,
                         confirm,
                         packages,
                     } => {
-                        println!("{} {} {:?}", skip_confirm, confirm, packages);
+                        let confirm = match (noconfirm, confirm) {
+                            (true, false) => false,
+                            (false, true) => true,
+                            (false, false) => config.uninstall_confirm,
+                            _ => panic!("UUH?"),
+                        };
+
+                        on_uninstall_command(packages, confirm)?;
                     }
                     MainCommand::Update {
                         noaur: skip_aur,
@@ -79,7 +90,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         noreview: skip_review,
                         review,
                     } => {
-                        println!("{} {} {} {}", skip_aur, aur, skip_review, review);
+                        let aur = match (skip_aur, aur) {
+                            (true, false) => false,
+                            (false, true) => true,
+                            (false, false) => config.update_aur,
+                            _ => panic!("UUH?"),
+                        };
+                        on_update_command(aur, review);
                     }
                     MainCommand::Search { package } => {
                         on_search_command(package, true, None).await?
@@ -124,23 +141,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     || e.kind() == ErrorKind::InvalidSubcommand
                         && !commands.iter().any(|c| c == &main_command)
                 {
-                    match config.install_fallback {
+                    match config.pacman_fallback {
                         true => {
-                            on_install_command(
-                                args,
-                                config.search_fallback,
-                                config.review,
-                                config.confirm_installation,
-                            )
-                            .await?;
-                        }
-                        false => {
                             show_message("Using Pacman");
 
                             let mut command = vec!["sudo".to_string(), "pacman".to_string()];
                             command.append(&mut args);
 
                             run(&command)?;
+                        }
+                        false => {
+                            on_install_command(
+                                args,
+                                config.search_fallback,
+                                config.aur_review,
+                                config.confirm_installation,
+                            )
+                            .await?;
                         }
                     }
 
