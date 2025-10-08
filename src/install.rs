@@ -113,7 +113,6 @@ pub async fn install_aur_package(package: &str, review: bool) -> Result<(), Box<
         .results
         .get(0)
         .ok_or_else(|| "Failed to get package info".to_string())?;
-    show_message("Downloading Package Build");
 
     let cache_dir = dirs::cache_dir()
         .expect("Failed to get cache dir")
@@ -126,28 +125,30 @@ pub async fn install_aur_package(package: &str, review: bool) -> Result<(), Box<
         ));
 
     if !cache_dir.exists() {
+        show_message("Downloading Package Build");
+
         fs::create_dir_all(&cache_dir).expect("Failed to create cache dir");
+
+        let tgz_path = cache_dir.clone().join("content.tar.gz");
+
+        let bytes = get(&format!("https://aur.archlinux.org{}", &info.url_path))
+            .await?
+            .bytes()
+            .await?;
+
+        fs::write(&tgz_path, &bytes)?;
+
+        run_hidden_in_path(
+            &[
+                "tar",
+                "-xzf",
+                &tgz_path.display().to_string(),
+                "--strip-components=1",
+            ],
+            &cache_dir,
+        )
+        .expect("Failed to run makepkg");
     }
-
-    let tgz_path = cache_dir.clone().join("content.tar.gz");
-
-    let bytes = get(&format!("https://aur.archlinux.org{}", &info.url_path))
-        .await?
-        .bytes()
-        .await?;
-
-    fs::write(&tgz_path, &bytes)?;
-
-    run_hidden_in_path(
-        &[
-            "tar",
-            "-xzf",
-            &tgz_path.display().to_string(),
-            "--strip-components=1",
-        ],
-        &cache_dir,
-    )
-    .expect("Failed to run makepkg");
 
     run_in_path(&["makepkg", "-si"], &cache_dir)?;
 

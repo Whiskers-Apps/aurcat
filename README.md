@@ -8,7 +8,7 @@ The program it's still in development phase.
 ## Global
 - [ ] Updates
 - [x] Install
-- [ ] Uninstall
+- [x] Uninstall
 - [x] Search
 - [x] List
 
