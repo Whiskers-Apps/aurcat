@@ -20,7 +20,7 @@ pub struct SearchQuery {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct AurSearchReponse {
+pub struct AurSearchResponse {
     pub results: Vec<AurSearchResult>,
 }
 
@@ -236,7 +236,7 @@ pub async fn search_aur_packages(package: &str) -> Result<Vec<AurSearchQuery>, B
     let url = format!("https://aur.archlinux.org/rpc/?v=5&type=search&arg={package}");
 
     let response_json = reqwest::get(url).await?.text().await?;
-    let response: AurSearchReponse = serde_json::from_str(&response_json)?;
+    let response: AurSearchResponse = serde_json::from_str(&response_json)?;
 
     let packages: Vec<AurSearchQuery> = response
         .results

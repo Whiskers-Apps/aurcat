@@ -113,7 +113,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             _ => panic!("UUH?"),
                         };
 
-                        on_update_command(aur, review, confirm)?;
+                        on_update_command(aur, review, confirm).await?;
                     }
                     MainCommand::Search { package } => {
                         on_search_command(package, true, None).await?

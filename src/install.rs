@@ -17,19 +17,22 @@ use crate::{
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AurPackageInfoResponse {
-    results: Vec<AurPackageInfoResult>,
+    pub results: Vec<AurPackageInfoResult>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AurPackageInfoResult {
     #[serde(rename = "LastModified")]
-    last_modified: usize,
+    pub last_modified: usize,
 
     #[serde(rename = "URLPath")]
-    url_path: String,
+    pub url_path: String,
 
     #[serde(rename = "Version")]
-    version: String,
+    pub version: String,
+
+    #[serde(rename = "Name")]
+    pub name: String,
 }
 
 pub async fn on_install_command(
