@@ -3,7 +3,7 @@ The program it's still in development phase.
 
 # Features
 ## AUR
-- [ ] Optional Package Review
+- [x] Optional Package Review
 
 ## Global
 - [ ] Updates
