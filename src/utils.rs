@@ -4,6 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
+use inquire::ui::{RenderConfig, Styled};
 use strip_ansi_escapes::strip;
 
 pub fn run_hidden(command: &[&str]) -> Result<String, Box<dyn Error>> {
@@ -138,4 +139,10 @@ pub fn run_in_path<S: AsRef<str>, P: AsRef<Path>>(
 
 pub fn show_message<S: AsRef<str>>(message: S) {
     println!("😺 {}", message.as_ref());
+}
+
+pub fn get_empty_render_config() -> RenderConfig<'static> {
+    let mut render_config = RenderConfig::default();
+    render_config.prompt_prefix = Styled::new("");
+    render_config
 }

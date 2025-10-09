@@ -11,6 +11,9 @@ pub struct Config {
     /// Prompt a confirm message when installing a package
     pub confirm_installation: bool,
 
+    /// Prompt a confirm message when updating a package
+    pub confirm_update: bool,
+
     /// Prompt a confirm message when uninstalling a package
     pub uninstall_confirm: bool,
 
@@ -41,6 +44,7 @@ impl Default for Config {
             update_aur: true,
             max_results: 30,
             pacman_fallback: false,
+            confirm_update: true,
         }
     }
 }

@@ -1,9 +1,11 @@
 use std::{
     error::Error,
     fs::{self},
+    path::Path,
     process::{Command, exit},
 };
 
+use inquire::{Text, validator::Validation};
 use reqwest::get;
 use serde::{Deserialize, Serialize};
 
@@ -36,8 +38,6 @@ pub async fn on_install_command(
     review: bool,
     confirm_installation: bool,
 ) -> Result<(), Box<dyn Error>> {
-    // println!("{} {}", search_fallback, review);
-
     let packages_len = packages.len();
 
     if packages_len == 1 {
@@ -147,10 +147,82 @@ pub async fn install_aur_package(package: &str, review: bool) -> Result<(), Box<
             ],
             &cache_dir,
         )
-        .expect("Failed to run makepkg");
+        .expect("Failed to untar aur file");
+
+        if review {
+            let result = Text::new(&format!(
+                "Would you like to review? {}\n",
+                if review { "(Y/n)" } else { "(y/N)" }
+            ))
+            .with_validator(move |input: &str| {
+                let lower_answer = input.to_lowercase().to_string();
+
+                match lower_answer.as_str() {
+                    "y" => Ok(Validation::Valid),
+                    "yes" => Ok(Validation::Valid),
+                    "n" => Ok(Validation::Valid),
+                    "no" => Ok(Validation::Valid),
+                    _ => Ok(Validation::Invalid("Invalid Answer".into())),
+                }
+            })
+            .with_default(if review { "Y" } else { "N" })
+            .prompt();
+
+            let answer = result?.to_lowercase();
+
+            match answer.as_str() {
+                "y" => {
+                    let install = review_package(&cache_dir)?;
+
+                    if install {
+                        run_in_path(&["makepkg", "-si"], &cache_dir)?;
+                    } else {
+                        exit(0);
+                    }
+                }
+                "yes" => {
+                    let install = review_package(&cache_dir)?;
+
+                    if install {
+                        run_in_path(&["makepkg", "-si"], &cache_dir)?;
+                    } else {
+                        exit(0);
+                    }
+                }
+                _ => {}
+            };
+        }
     }
 
     run_in_path(&["makepkg", "-si"], &cache_dir)?;
 
     Ok(())
+}
+
+fn review_package<P: AsRef<Path>>(cache_dir: P) -> Result<bool, Box<dyn Error>> {
+    let pkgbuild_path = cache_dir.as_ref().join("PKGBUILD");
+    run(&["bat", &pkgbuild_path.display().to_string()])?;
+
+    let result = Text::new(&format!("Would you like to install the package? (Y/n)\n"))
+        .with_validator(move |input: &str| {
+            let lower_answer = input.to_lowercase().to_string();
+
+            match lower_answer.as_str() {
+                "y" => Ok(Validation::Valid),
+                "yes" => Ok(Validation::Valid),
+                "n" => Ok(Validation::Valid),
+                "no" => Ok(Validation::Valid),
+                _ => Ok(Validation::Invalid("Invalid Answer".into())),
+            }
+        })
+        .with_default("Y")
+        .prompt();
+
+    let answer = result?.to_lowercase();
+
+    return match answer.as_str() {
+        "y" => Ok(true),
+        "yes" => Ok(true),
+        _ => Ok(false),
+    };
 }

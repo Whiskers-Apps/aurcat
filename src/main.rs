@@ -85,18 +85,35 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         on_uninstall_command(packages, confirm)?;
                     }
                     MainCommand::Update {
-                        noaur: skip_aur,
+                        noaur,
                         aur,
-                        noreview: skip_review,
+                        noreview,
                         review,
+                        noconfirm,
+                        confirm,
                     } => {
-                        let aur = match (skip_aur, aur) {
+                        let aur = match (noaur, aur) {
                             (true, false) => false,
                             (false, true) => true,
                             (false, false) => config.update_aur,
                             _ => panic!("UUH?"),
                         };
-                        on_update_command(aur, review);
+
+                        let review = match (noreview, review) {
+                            (true, false) => false,
+                            (false, true) => true,
+                            (false, false) => config.aur_review,
+                            _ => panic!("UUH?"),
+                        };
+
+                        let confirm = match (noconfirm, confirm) {
+                            (true, false) => false,
+                            (false, true) => true,
+                            (false, false) => config.confirm_update,
+                            _ => panic!("UUH?"),
+                        };
+
+                        on_update_command(aur, review, confirm)?;
                     }
                     MainCommand::Search { package } => {
                         on_search_command(package, true, None).await?

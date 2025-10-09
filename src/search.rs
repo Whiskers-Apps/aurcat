@@ -2,11 +2,7 @@ use std::error::Error;
 
 use colored::Colorize;
 use convert_case::{Case, Casing};
-use inquire::{
-    CustomType, Text,
-    ui::{RenderConfig, Styled},
-    validator::Validation,
-};
+use inquire::{CustomType, validator::Validation};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -183,12 +179,6 @@ pub async fn on_search_command(
     }
 
     Ok(())
-}
-
-fn get_render_config() -> RenderConfig<'static> {
-    let mut render_config = RenderConfig::default();
-    render_config.prompt_prefix = Styled::new("");
-    render_config
 }
 
 pub fn search_repo_packages(package: &str) -> Result<Vec<SearchQuery>, Box<dyn Error>> {

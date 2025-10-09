@@ -21,8 +21,9 @@ The program it's still in development phase.
 # Dependencies
 The program requires depedencies for some of the features:
 ```
-sudo pacman -S pacman-contrib archlinux-keyring
+sudo pacman -S pacman-contrib archlinux-keyring bat
 ```
 
 - `pacman-contrib` To clear pacman cache.
 - `archlinux-keyring` To update signing keys. Important from time to time.
+- `bat` To read the PKBUILDs.

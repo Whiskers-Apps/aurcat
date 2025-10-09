@@ -57,6 +57,12 @@ pub enum MainCommand {
 
         #[arg(long, group = "review_pkgbuild", action = ArgAction::SetTrue, help = "Review PKGBUILD")]
         review: bool,
+
+        #[arg(long, group = "confirm_update", action = ArgAction::SetTrue, help = "Skips the prompt to confirm repository packages update")]
+        noconfirm: bool,
+
+        #[arg(long, group = "confirm_update", action = ArgAction::SetTrue, help = "Prompts a message to confirm the repository package update")]
+        confirm: bool,
     },
 
     #[command(about = "Search for a package")]
