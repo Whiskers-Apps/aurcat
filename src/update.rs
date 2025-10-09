@@ -11,7 +11,7 @@ pub async fn on_update_command(
     review: bool,
     confirm: bool,
 ) -> Result<(), Box<dyn Error>> {
-    // update_repo_packages(confirm)?;
+    update_repo_packages(confirm)?;
 
     if !aur {
         return Ok(());
